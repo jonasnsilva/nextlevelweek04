@@ -10,7 +10,7 @@
 <strong>5 -</strong> Executar o comando no terminal: yarn install
 <strong>6 -</strong> Executar o comando no terminal (após concluir a execução do comando acima): <strong>yarn dev</strong><br>
 
-Para executar os teste basta utilizar o comando do passo 3 e após isso executar o comando <strong>yarn test</strong>.
+Para executar os teste basta utilizar o comando do passo 4 e após isso executar o comando <strong>yarn test</strong>.
 
 
 
