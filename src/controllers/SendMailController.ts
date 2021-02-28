@@ -6,11 +6,24 @@ import {SurveysRepository} from "../repositories/SurveysRepository";
 import {SurveysUsersRepository} from "../repositories/SurveysUsersRepository";
 import SendMailService from "../services/SendMailService";
 import {AppError} from "../errors/AppError";
+import * as yup from "yup";
 
 class SendMailController {
 
     async execute(request: Request, response: Response) {
         const { email, survey_id } = request.body;
+
+        const validations = yup.object().shape({
+            email: yup.string()
+                .required("O campo e-mail é obrigatório.")
+                .email("O campo email tem que ser um e-mail"),
+            survey_id: yup.string()
+                .required("O campo survey_id é obrigatório.")
+                .uuid("O campo survey_id tem que ser do tipo uuid")
+        });
+
+
+        await validations.validate(request.body).catch(error => {throw new AppError(error.message)});
 
         const usersRepository = getCustomRepository(UsersRepositoriy);
         const surveysRepository = getCustomRepository(SurveysRepository);
@@ -19,13 +32,13 @@ class SendMailController {
         const user = await usersRepository.findOne({email});
 
         if(!user){
-            throw new AppError("User does not exists");
+            throw new AppError("O usuário informado não consta na nossa base de dados.");
         }
 
         const survey = await surveysRepository.findOne({id: survey_id});
 
         if(!survey){
-            throw new AppError("Survey does not exists!");
+            throw new AppError("A pesquisa informada não consta na nossa base de dados.");
         }
 
         const npsPath = resolve(__dirname, "..", "views", "emails", "npsMail.hbs");

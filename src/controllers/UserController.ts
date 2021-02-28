@@ -8,17 +8,13 @@ class UserController {
     async create(request: Request, response: Response) {
         const {name, email} = request.body;
 
-        const schema = yup.object().shape({
-            name: yup.string().required("Nome é obrigatório"),
-            email: yup.string().email().required("E-mail é obrigatório")
+        const validations = yup.object().shape({
+            name: yup.string().required("O campo nome é obrigatório"),
+            email: yup.string().required("O campo e-mail é obrigatório").email("O campo email tem que ser um e-mail")
         });
 
 
-        try {
-            await schema.isValid(request.body, {abortEarly: false})
-        } catch (error){
-            throw new AppError("Validation Failed!");
-        }
+        await validations.validate(request.body).catch(error => {throw new AppError(error.message)});
 
 
         const usersRepository = getCustomRepository(UsersRepositoriy);
@@ -27,7 +23,7 @@ class UserController {
             email
         });
         if (userAlreadyExists) {
-            throw new AppError("User already exists!");
+            throw new AppError("Usuário já consta na nossa base de dados.");
         }
         const user = usersRepository.create({
             name, email

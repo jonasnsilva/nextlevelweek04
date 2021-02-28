@@ -1,11 +1,21 @@
 import {Request, Response} from "express";
 import {getCustomRepository, Not, IsNull} from "typeorm";
 import {SurveysUsersRepository} from "../repositories/SurveysUsersRepository";
+import * as yup from "yup";
+import {AppError} from "../errors/AppError";
 
 class NpsController {
 
     async execute(request: Request, response: Response){
         const {survey_id} = request.params;
+
+        const validations = yup.object().shape({
+            survey_id: yup.string()
+                .required("O campo survey_id é obrigatório.")
+                .uuid("O campo survey_id tem que ser do tipo uuid")
+        });
+
+        await validations.validate(request.body).catch(error => {throw new AppError(error.message)});
 
         const surveysUsersRepository = getCustomRepository(SurveysUsersRepository);
 
